@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QualityReport Pro - Inspetor de Qualidade</title>
+    
+    <link rel="stylesheet" href="style.css">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+    <div class="app-container">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                Quality<span>Report</span>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#" class="nav-link active" data-target="dashboard">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-target="novo-relatorio">Novo Relatório</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-target="registros">Registros</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-target="analises">Análises</a>
+                </li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            
+            <section id="dashboard" class="page active">
+                <div class="page-header">
+                    <h1>Dashboard</h1>
+                    <p>Visão geral do controle de qualidade.</p>
+                </div>
+
+                <div class="kpi-grid">
+                    <div class="kpi-card card">
+                        <div id="kpi-total-hoje" class="value">0</div>
+                        <div class="label">Relatórios Hoje</div>
+                    </div>
+                    <div class="kpi-card card">
+                        <div id="kpi-total-mes" class="value">0</div>
+                        <div class="label">Total de Relatórios (Mês)</div>
+                    </div>
+                    <div class="kpi-card card">
+                        <div id="kpi-nao-conformes" class="value">0</div>
+                        <div class="label">Não Conformidades (Mês)</div>
+                    </div>
+                    <div class="kpi-card card">
+                        <div id="kpi-taxa-conformidade" class="value">0%</div>
+                        <div class="label">Taxa de Conformidade</div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="chart-container card">
+                        <h3>Relatórios por Dia (Últimos 7 dias)</h3>
+                        <canvas id="relatoriosChart"></canvas>
+                    </div>
+                     <div class="activity-container card">
+                        <h3>Atividade Recente</h3>
+                        <div class="activity-list">
+                            <ul id="lista-atividades-recentes">
+                                </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="novo-relatorio" class="page">
+                <div class="page-header">
+                    <h1>Novo Relatório Diário</h1>
+                    <p>Preencha os campos abaixo para registrar uma nova inspeção.</p>
+                </div>
+                <div class="card">
+                    <form id="form-novo-relatorio">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="data">Data</label>
+                                <input type="date" id="data" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="turno">Turno</label>
+                                <select id="turno" required>
+                                    <option value="Manhã">Manhã</option>
+                                    <option value="Tarde">Tarde</option>
+                                    <option value="Noite">Noite</option>
+                                </select>
+                            </div>
+                             <div class="form-group">
+                                <label for="produto">Produto Inspecionado</label>
+                                <input type="text" id="produto" placeholder="Ex: Peça Modelo A-38" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="lote">Lote / Ordem de Produção</label>
+                                <input type="text" id="lote" placeholder="Ex: LT2025-09-158" required>
+                            </div>
+                             <div class="form-group">
+                                <label for="status">Status da Inspeção</label>
+                                <select id="status" required>
+                                    <option value="Conforme">Conforme</option>
+                                    <option value="Não Conforme">Não Conforme</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="criticidade">Nível de Criticidade (se aplicável)</label>
+                                <select id="criticidade">
+                                    <option value="N/A">N/A</option>
+                                    <option value="Baixo">Baixo</option>
+                                    <option value="Médio">Médio</option>
+                                    <option value="Alto">Alto</option>
+                                </select>
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="descricao">Descrição da Não Conformidade</label>
+                                <textarea id="descricao" placeholder="Descreva o problema encontrado..."></textarea>
+                            </div>
+                             <div class="form-group full-width">
+                                <label for="evidencias">Anexar Evidências (Fotos)</label>
+                                <input type="file" id="evidencias" accept="image/*" multiple>
+                                
+                                <div id="preview-container" class="preview-grid"></div>
+                            </div>
+                        </div>
+                        <br>
+                        <button type="submit" class="btn btn-primary">Registrar Relatório</button>
+                    </form>
+                </div>
+            </section>
+
+            <section id="registros" class="page">
+                <div class="page-header">
+                    <h1>Controle de Registros</h1>
+                    <p>Busque e visualize todos os relatórios preenchidos.</p>
+                </div>
+                <div class="card">
+                    <div class="records-table-container">
+                        <table class="records-table">
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Produto</th>
+                                    <th>Lote</th>
+                                    <th>Status</th>
+                                    <th>Inspetor</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-registros-corpo">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="analises" class="page">
+                <div class="page-header">
+                    <h1>Análises e Gráficos</h1>
+                    <p>Visualize os dados de qualidade de forma estratégica.</p>
+                </div>
+                 <div class="dashboard-grid">
+                    <div class="chart-container card">
+                        <h3>Ocorrências por Produto</h3>
+                        <canvas id="ocorrenciasChart"></canvas>
+                    </div>
+                     <div class="chart-container card">
+                        <h3>Status dos Relatórios</h3>
+                        <canvas id="statusChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script src="script.js" defer></script>
+
+    <div id="modal-visualizacao" class="modal-container hidden">
+        <div class="modal-overlay"></div>
+        <div class="modal-content card">
+            <button class="modal-close-btn">&times;</button>
+            <div class="modal-header">
+                <h2>Detalhes do Relatório</h2>
+            </div>
+            <div id="modal-body" class="modal-body">
+                </div>
+            <div class="modal-imagens-container">
+                <h3>Evidências Anexadas</h3>
+                <div id="modal-imagens" class="preview-grid">
+                    </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
